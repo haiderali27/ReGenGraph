@@ -1,0 +1,13 @@
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\bin\Debug\netcoreapp3.1\ReGenGraph.exe
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\bin\Debug\netcoreapp3.1\ReGenGraph.deps.json
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\bin\Debug\netcoreapp3.1\ReGenGraph.runtimeconfig.json
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\bin\Debug\netcoreapp3.1\ReGenGraph.runtimeconfig.dev.json
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\bin\Debug\netcoreapp3.1\ReGenGraph.dll
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\bin\Debug\netcoreapp3.1\ReGenGraph.pdb
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\obj\Debug\netcoreapp3.1\ReGenGraph.csprojAssemblyReference.cache
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\obj\Debug\netcoreapp3.1\ReGenGraph.csproj.CoreCompileInputs.cache
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\obj\Debug\netcoreapp3.1\ReGenGraph.AssemblyInfoInputs.cache
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\obj\Debug\netcoreapp3.1\ReGenGraph.AssemblyInfo.cs
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\obj\Debug\netcoreapp3.1\ReGenGraph.dll
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\obj\Debug\netcoreapp3.1\ReGenGraph.pdb
+C:\Users\Say Hello X)\source\repos\ReGenGraph\ReGenGraph\obj\Debug\netcoreapp3.1\ReGenGraph.genruntimeconfig.cache
