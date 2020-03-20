@@ -4,6 +4,57 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ReGenGraph
 {
+    abstract class Rule
+    {
+        protected String ruleName;
+        public Rule()
+        {
+            this.ruleName = null; 
+        }
+        public Rule(String ruleName)
+        {
+            this.ruleName = ruleName;
+        }
+        public void SetRuleName(String ruleName)
+        {
+            this.ruleName = ruleName;
+        }
+        public String GetRuleName()
+        {
+            return this.ruleName;
+        }
+        public abstract List<Graph> ImplementRule(Graph graph);
+    }
+    class LoveRule : Rule
+    {
+        public override List<Graph> ImplementRule(Graph graph)
+        {
+            List<Graph> returnGraph = new List<Graph>(); 
+            List<Vertex> vertices = graph.GetVertices();
+            foreach (Vertex vertex in vertices)
+            {
+                List<Vertex> destVertices = graph.GetDestVerticesByIndexedEdgeByRelation(vertex, "loves");
+                
+                foreach (Vertex vertex1 in destVertices)
+                {
+                    if (!graph.GetDestVerticesByIndexedEdgeByRelation(vertex1, "loves").Contains(vertex))
+                    {
+                        if (graph.RelationExistsWithOtherDestination(vertex1, "loves"))
+                        { 
+                            Graph tempGraph = new Graph();
+                            tempGraph.AddVertex(vertex.GetLabel());
+                            tempGraph.AddVertex(vertex1.GetLabel());
+                            tempGraph.AddVertex(graph.GetDestVerticesByIndexedEdgeByRelation(vertex1, "loves")[0].GetLabel());
+                            tempGraph.SetIndexedEdgeRelation(tempGraph.GetVertex(0), tempGraph.GetVertex(1), "love");
+                            tempGraph.SetIndexedEdgeRelation(tempGraph.GetVertex(1), tempGraph.GetVertex(2), "love");
+                            returnGraph.Add(tempGraph);   
+                        }
+                    }
+                }
+            }
+            return returnGraph;
+        }
+    }
     class Graph {
         private List<Vertex> vertices;
         private Dictionary<String, List<Edge>> edges;
@@ -24,6 +75,11 @@ namespace ReGenGraph
         {
             this.vertices = vertices;
             this.edges = edges;
+        }
+       
+        public List<Vertex> GetVertices()
+        {
+            return this.vertices;
         }
         public void DeleteVertex(int index)
         {
@@ -270,6 +326,21 @@ namespace ReGenGraph
             dest.AddEdges(new Edge(source, dest, relation, reason));
         }
         /*Indexed Edged Settings*/
+        public void SetIndexedEdgeRelation(String edgeIndex, Edge edge) {
+            List<Edge> edges;
+            if (this.edges.ContainsKey(edgeIndex))
+            {
+                edges = this.edges[edgeIndex];
+                edges.Add(edge);
+                return;
+            }
+            edges = new List<Edge>();
+            edges.Add(edge);
+            edge.GetSource().AddEdgeIndex(edgeIndex);
+            edge.GetDest().AddEdgeIndex(edgeIndex);
+            this.edges.Add(edgeIndex, edges);
+            
+        }
         public void SetIndexedEdgeRelation(Vertex source, Vertex dest, String relation, String reason)
         {
 
@@ -288,7 +359,7 @@ namespace ReGenGraph
             if (this.edges.ContainsKey(edgeKey))
             {
                 temp = this.edges[edgeKey];
-                if(!temp.Contains(new Edge(source, dest, relation, reason)))
+                if (!temp.Contains(new Edge(source, dest, relation, reason)))
                 {
                     temp.Add(new Edge(source, dest, relation, reason));
                     this.edges[edgeKey] = temp;
@@ -306,12 +377,137 @@ namespace ReGenGraph
                 source.AddEdgeIndex(edgeKey);
                 dest.AddEdgeIndex(edgeKey);
             }
-            
-           
-            
-          /*  source.AddEdgeIndex(currentEdgeIndex);
-            dest.AddEdgeIndex(currentEdgeIndex);
-            this.edges.Add(new Edge(source, dest, relation, reason));*/
+
+
+
+            /*  source.AddEdgeIndex(currentEdgeIndex);
+              dest.AddEdgeIndex(currentEdgeIndex);
+              this.edges.Add(new Edge(source, dest, relation, reason));*/
+        }
+        public void SetIndexedEdgeRelation(Vertex source, Vertex dest, String relation)
+        {
+
+            if (!this.vertices.Contains(source))
+            {
+                Console.WriteLine("source doesn't exist");
+                return;
+            }
+            if (!this.vertices.Contains(dest))
+            {
+                Console.WriteLine("dest doesn't exist");
+                return;
+            }
+            String edgeKey = source.GetIndex().ToString() + "-" + dest.GetIndex().ToString();
+            List<Edge> temp;
+            if (this.edges.ContainsKey(edgeKey))
+            {
+                temp = this.edges[edgeKey];
+                if (!temp.Contains(new Edge(source, dest, relation)))
+                {
+                    temp.Add(new Edge(source, dest, relation));
+                    this.edges[edgeKey] = temp;
+                }
+                else
+                {
+                    Console.WriteLine("Same edge already exists");
+                }
+            }
+            else
+            {
+                temp = new List<Edge>();
+                temp.Add(new Edge(source, dest, relation));
+                this.edges.Add(edgeKey, temp);
+                source.AddEdgeIndex(edgeKey);
+                dest.AddEdgeIndex(edgeKey);
+            }
+
+
+
+            /*  source.AddEdgeIndex(currentEdgeIndex);
+              dest.AddEdgeIndex(currentEdgeIndex);
+              this.edges.Add(new Edge(source, dest, relation, reason));*/
+        }
+
+        public Edge GetIndexedEdgeSourceRelationByRelation(Vertex vertex, String relation)
+        {
+            Edge edge = new Edge();
+            bool exists = false;
+            foreach (String edgeKey in vertex.GetEdgeIndices())
+            {
+                if (edgeKey.Split("-")[1].Equals(vertex.GetIndex().ToString()))
+                {
+                    int i = 0;
+                    while (i < this.edges[edgeKey].Count && exists == false)
+                    {
+                        if (this.edges[edgeKey][i].GetRelation().Equals(relation))
+                        {
+                            edge = this.edges[edgeKey][i];
+                            exists = true;
+                        }
+                        i++;
+                    }
+                }
+            }
+            return edge;
+        }
+        public Edge GetIndexedEdgeDestRelationByRelation(Vertex vertex, String relation)
+        {
+            Edge edge = new Edge();
+            bool exists = false;
+            foreach (String edgeKey in vertex.GetEdgeIndices())
+            {
+                if (edgeKey.Split("-")[0].Equals(vertex.GetIndex().ToString()))
+                {
+                    int i = 0;
+                    while (i < this.edges[edgeKey].Count && exists == false)
+                    {
+                        if (this.edges[edgeKey][i].GetRelation().Equals(relation))
+                        {
+                            edge = this.edges[edgeKey][i];
+                            exists = true;
+                        }
+                        i++;
+                    }
+                }
+            }
+            return edge;
+        }
+        public Edge GetIndexedEdgeOtherRelationByRelation(Vertex vertex, String relation)
+        {
+            Edge edge = new Edge();
+            bool exists = false;
+            foreach (String edgeKey in vertex.GetEdgeIndices())
+            {
+                if (edgeKey.Split("-")[0].Equals(vertex.GetIndex().ToString()))
+                {
+                    int i = 0;
+                    while (i < this.edges[edgeKey].Count && exists == false)
+                    {
+                        if (this.edges[edgeKey][i].GetRelation().Equals(relation))
+                        {
+                            edge = this.edges[edgeKey][i];
+                            exists = true;
+                        }
+                        i++;
+
+                    }
+                }
+                if (edgeKey.Split("-")[1].Equals(vertex.GetIndex().ToString()))
+                {
+                    int i = 0;
+                    while (i < this.edges[edgeKey].Count && exists == false)
+                    {
+                        if (this.edges[edgeKey][i].GetRelation().Equals(relation))
+                        {
+                            edge = this.edges[edgeKey][i];
+                            exists = true;
+                        }
+                        i++;
+
+                    }
+                }
+            }
+            return edge;
         }
         public void DeleteIndexedEdgeRelation(String edgeKey, Edge edge) {
             if (this.edges.ContainsKey(edgeKey))
@@ -782,6 +978,15 @@ namespace ReGenGraph
                 }
             }
         }
+        public void PrintVertices()
+        {
+            foreach(Vertex vertex in this.vertices)
+            {
+
+                Console.Write(vertex.GetLabel()+" -> ");
+            }
+            Console.WriteLine();
+        }
         public Graph GetGraph() 
         {
             return this;
@@ -935,6 +1140,12 @@ namespace ReGenGraph
         public String GetRelation() {
             return this.relation;
         }
+        public Edge(Vertex source, Vertex dest, String relation)
+        {
+            this.source = source;
+            this.dest = dest;
+            this.relation = relation;
+        }
         public Edge(Vertex source, Vertex dest, String relation, String reason) {
             this.source = source;
             this.dest = dest;
@@ -1014,8 +1225,18 @@ namespace ReGenGraph
             graph2.SetIndexedEdgeRelation(graph2.GetVertex(1), graph2.GetVertex(2), "loves", "some");
             graph2.SetIndexedEdgeRelation(graph2.GetVertex(2), graph2.GetVertex(3), "loves", "some");
             graph2.SetIndexedEdgeRelation(graph2.GetVertex(3), graph2.GetVertex(5), "loves", "some");
-            graph2.LoveRule();
-            graph2.PrintLoveRule(); 
+            Console.WriteLine("Main Graph: ");
+            graph2.PrintVertices();
+            //graph2.LoveRule();
+            //graph2.PrintLoveRule(); 
+            Rule loveRule = new LoveRule();
+            
+             List<Graph> loveRuleGraph = loveRule.ImplementRule(graph2);
+            Console.WriteLine("Sub Graphs: ");
+            foreach (Graph graph in loveRuleGraph)
+             {
+                 graph.PrintVertices();
+             }
             //Console.WriteLine("Graph2: " + graph2.GetVertex(0).GetEdgeIndices()[1]);
         }
     }
